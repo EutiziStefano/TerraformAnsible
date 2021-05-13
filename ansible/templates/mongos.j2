@@ -1,0 +1,13 @@
+sharding:
+  configDB: config_replset_A/{% for i in groups['mongo'] %}{{i}}:27019{% if not loop.last %},{% endif %}
+{% endfor %}
+
+net:
+  bindIp: localhost
+  port: 27017
+systemLog:
+  destination: file
+  path: "/var/log/mongodb/mongos.log"
+  logAppend: true
+processManagement:
+  fork: true

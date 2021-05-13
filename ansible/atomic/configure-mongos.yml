@@ -1,0 +1,66 @@
+- name: Install packages
+  package:
+    name: '{{item}}'
+    state: present
+  become: true
+  with_items:
+    - mongodb
+
+- name: crea directory per mongos
+  file:
+    dest: /data/conf/
+    state: directory
+    recurse: yes
+  become: true
+
+- name: Set right permission on data
+  file:
+    dest: /data
+    owner: mongodb
+    group: mongodb
+    recurse: yes
+  become: true
+
+- name: copy service file mongos
+  copy:
+    src: mongos.service
+    dest: /lib/systemd/system/mongos.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify:
+    - restart mongos
+
+- name: Create a symbolic link in systemd
+  file:
+    src: /lib/systemd/system/mongos.service
+    dest: /etc/systemd/system/multi-user.target.wants/mongos.service
+    state: link
+  become: true
+
+- name: File di configurazione mongos
+  template:
+    src: mongos.j2
+    dest: /data/conf/mongos.conf
+    mode: '0644'
+  become: true
+  notify:
+    - restart mongos
+
+- name: Ensure mongodb is not running and disabled
+  systemd:
+    name: mongodb
+    enabled: no
+    state: stopped
+    daemon_reload: yes
+  become: true
+
+- name: Ensure mongos is running and enabled
+  systemd:
+    name: mongos
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+

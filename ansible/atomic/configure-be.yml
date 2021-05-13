@@ -1,0 +1,59 @@
+
+- name: Imposta variabili di ambiente HTTP_PORT
+  lineinfile:
+    path: /etc/environment
+    regexp: "HTTP_PORT"
+    line: "HTTP_PORT=80"  
+  become: true
+
+- name: Imposta variabili di ambiente MONGO_URI
+  lineinfile:
+    path: /etc/environment
+    regexp: "MONGO_URI"
+    line: "MONGO_URI=mongodb://localhost:27017"
+  become: true
+
+- name: copia file applicazione
+  copy:
+    src: mongo_dbs.js
+    dest: /app/mongo_dbs.js
+  become: yes
+
+- name: copia file start
+  copy:
+    src: start.sh
+    dest: /app/start.sh
+    mode: '0755'
+  become: yes
+
+- name: copia file stop
+  copy:
+    src: stop.sh
+    dest: /app/stop.sh
+    mode: '0755'
+  become: yes
+
+- name: copia file config monit
+  copy:
+    src: node_mongo_dbs
+    dest: /etc/monit/conf-enabled/node_mongo_dbs 
+  become: yes
+  register: changedmonit
+
+- name: configuration check
+  shell: monit -t
+  register: config_monitcheck
+  failed_when: config_monitcheck.rc != 0
+  become: true
+
+- name: Restart service monit
+  service:
+    name: monit
+    state: restarted
+  when: config_monitcheck.rc == 0 and changedmonit.changed
+  become: true
+
+
+
+
+

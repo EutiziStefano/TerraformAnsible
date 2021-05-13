@@ -1,0 +1,10 @@
+rs.initiate({_id: "config_replset_A",configsvr: true,
+    members: [
+
+{% for i in groups['mongo'] %}
+      { _id : {{loop.index - 1}}, host : "{{i}}:27019" },
+{% endfor %}
+    ]
+  }
+)
+

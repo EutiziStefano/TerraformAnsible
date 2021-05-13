@@ -1,0 +1,25 @@
+- name: modifica il defaul virtualhost
+  template:
+    src: nginxconf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  become: true
+  register: configchange
+
+- name: configuration check
+  shell: nginx -t
+  register: config_check
+  failed_when: config_check.rc != 0
+  become: true
+
+- name: Restart service nginx
+  service:
+    name: nginx
+    state: restarted
+  when: config_check.rc == 0 and configchange.changed
+  become: true
+
+

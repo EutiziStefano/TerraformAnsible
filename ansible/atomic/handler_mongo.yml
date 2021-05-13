@@ -1,0 +1,13 @@
+- name: restart mongodb
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: mongodb
+  become: true
+
+- name: restart mongoc
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: mongoc
+  become: true

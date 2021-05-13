@@ -1,0 +1,182 @@
+- name: copy service file mongoc
+  copy:
+    src: mongoc.service
+    dest: /lib/systemd/system/mongoc.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify:
+    - restart mongoc
+
+- name: Create a symbolic link in systemd
+  file:
+    src: /lib/systemd/system/mongoc.service
+    dest: /etc/systemd/system/multi-user.target.wants/mongoc.service
+    state: link
+  become: true
+
+- name: copy service file mongodb
+  copy:
+    src: mongodb.service
+    dest: /lib/systemd/system/mongodb.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify:
+    - restart mongodb
+
+- name: File di configurazione mongod
+  template:
+    src: mongodb.j2
+    dest: /data/conf/mongodb.conf
+    mode: '0644'
+  become: true
+  notify:
+    - restart mongodb
+
+- name: File di configurazione mongoc
+  template:
+    src: mongoc.j2
+    dest: /data/conf/mongoc.conf
+    mode: '0644'
+  become: true
+  notify:
+    - restart mongoc
+
+
+- name: create /etc/security/limits.d/mongodb.conf
+  copy:
+    src: security-mongodb.conf
+    dest: /etc/security/limits.d/mongodb.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify:
+    - restart mongodb
+
+- name:  Set vm.dirty_ratio 
+  sysctl:
+    name: vm.dirty_ratio
+    value: '15'
+    state: present
+  become: true
+
+- name:  Set vm.dirty_background_ratio 
+  sysctl:
+    name: vm.dirty_background_ratio
+    value: '5'
+    state: present
+  become: true
+
+- name: Set vm.swappiness
+  sysctl:
+    name: vm.swappiness
+    value: '10'
+    state: present
+  become: true
+
+- name: Set net.core.somaxconn 
+  sysctl:
+    name: net.core.somaxconn
+    value: '4096'
+    state: present
+  become: true
+
+- name: Set net.ipv4.tcp_fin_timeout
+  sysctl:
+    name: net.ipv4.tcp_fin_timeout
+    value: '30'
+    state: present
+  become: true
+
+- name: net.ipv4.tcp_keepalive_intvl
+  sysctl:
+    name: net.ipv4.tcp_keepalive_intvl
+    value: '30'
+    state: present
+  become: true
+
+- name: net.ipv4.tcp_keepalive_time
+  sysctl:
+    name: net.ipv4.tcp_keepalive_time
+    value: '120'
+    state: present
+  become: true
+
+- name: net.ipv4.tcp_max_syn_backlog 
+  sysctl:
+    name: net.ipv4.tcp_max_syn_backlog 
+    value: '4096'
+    state: present
+  become: true
+
+- name: Set right permission on data
+  file: 
+    dest: /data 
+    owner: mongodb
+    group: mongodb
+    recurse: yes
+  become: true
+
+- name: Ensure mongodb is running and enabled to start automatically on reboots
+  systemd:
+    name: mongodb
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+  become: true
+
+- name: Ensure mongoc is running and enabled to start automatically on reboots
+  systemd:
+    name: mongoc
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+  become: true
+
+
+- name: Controlla se esiste il replicaset mongoc
+  shell: "echo 'rs.status()' | mongo localhost:27019 | grep -c '\"ok\"\\s: 1'"
+  become: true
+  register: mongoc_rset
+  ignore_errors: yes
+  run_once: True
+
+- name: Crea file replicaset mongoc
+  template:
+    src: mongoc_rset.j2
+    dest: /data/conf/mongoc_rset.js
+  run_once: True
+  become: true
+  when: mongoc_rset.stdout == "0"
+
+- name: Lancia creazione replicaset mongoc
+  shell: "mongo localhost:27019 < /data/conf/mongoc_rset.js"
+  become: true
+  run_once: True
+  when: mongoc_rset.stdout == "0"
+
+- name: Controlla se esiste il replicaset mongodb
+  shell: "echo 'rs.status()' | mongo localhost:27018 | grep -c '\"ok\"\\s: 1'"
+  become: true
+  register: mongodb_rset
+  ignore_errors: yes
+  run_once: True
+
+- name: Crea file replicaset mongodb
+  template:
+    src: mongodb_rset.j2
+    dest: /data/conf/mongodb_rset.js
+  run_once: True
+  become: true
+  when: mongodb_rset.stdout == "0"
+
+- name: Lancia creazione replicaset mongodb
+  shell: "mongo localhost:27018 < /data/conf/mongodb_rset.js"
+  become: true
+  run_once: True
+  when: mongodb_rset.stdout == "0"
+

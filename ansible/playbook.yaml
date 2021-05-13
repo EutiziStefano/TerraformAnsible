@@ -1,0 +1,44 @@
+---
+- hosts: fe
+  gather_facts: no
+  tasks:
+    # Preparazione dei nodi FE
+    - include: atomic/forming-fe.yml
+  
+    # Configurazione Middleware FE
+    - include: atomic/configure-fe.yml
+
+- hosts: be
+  gather_facts: no
+  tasks:
+    # Preparazione dei nodi BE
+    - include: atomic/forming-be.yml
+
+    # Configurazione Middleware BE
+    - include: atomic/configure-be.yml
+
+- hosts: mongo
+  gather_facts: yes
+  tasks:
+    # Preparazione dei nodi Mongo
+    - include: atomic/forming-mongo.yml
+
+    # Configurazione Middleware Mongo
+    - include: atomic/configure-mongo.yml
+
+  handlers:
+    - include: atomic/handler_mongo.yml
+
+- hosts: be:dbbackup
+  gather_facts: no
+  tasks:
+    # Configurazione dei servizi Mongos
+    - include: atomic/configure-mongos.yml
+  handlers:
+    - include: atomic/handler_mongos.yml
+
+- hosts: dbbackup
+  gather_facts: no
+  tasks:
+    # Configurazione dei servizi Mongos
+    - include: atomic/configure-dbbackup.yml

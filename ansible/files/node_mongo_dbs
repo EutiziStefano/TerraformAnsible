@@ -1,0 +1,4 @@
+ check process node MATCHING node*
+   start program = "/app/start.sh"
+   stop  program = "kill -9 `pidof node`"
+

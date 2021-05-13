@@ -1,0 +1,12 @@
+- name: Install packages
+  package:
+    name: nginx
+    state: present
+  become: true
+
+#- name: Aggiunge nome host al welcome 
+#  lineinfile:
+#    path: /var/www/html/index.nginx-debian.html
+#    regexp: "<h1>Welcome to nginx!"
+#    line: "<h1>Welcome to nginx! {{ansible_hostname}} </h1>"
+#  become: true

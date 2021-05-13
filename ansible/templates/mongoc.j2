@@ -1,0 +1,15 @@
+sharding:
+   clusterRole: configsvr
+replication:
+   replSetName: config_replset_A
+net:
+   bindIp: localhost,{{ansible_default_ipv4.address}}
+   port: 27019
+storage:
+   dbPath: /data/configdb
+processManagement:
+   fork: true
+systemLog:
+   destination: file
+   path: "/var/log/mongodb/mongoc.log"
+   logAppend: true

@@ -1,0 +1,64 @@
+
+- name: Install packages
+  package:
+    name: '{{item}}'
+    state: present
+  become: true
+  with_items: 
+    - mongodb
+    - ntp
+
+- name: Controlla se esiste la partizione
+  shell: "lsblk | grep -c sdc1"
+  become: true
+  register: partition_check
+  ignore_errors: yes
+
+
+- name: Crea la partizione
+  parted:
+    device: /dev/sdc
+    number: 1
+    state: present
+  become: true
+  when: partition_check.rc == 1
+
+- name: Controlla se esiste il filesystem
+  shell: "lsblk -f | grep sdc1 | grep -c xfs"
+  become: true
+  register: fs_check
+  ignore_errors: yes
+  
+- name: Crea il Filesystem
+  filesystem:
+    fstype: xfs
+    dev: /dev/sdc1
+  become: true
+  when: fs_check.rc == 1
+
+- name: Add to fstab
+  mount:
+    path: /data
+    src: /dev/sdc1
+    fstype: xfs
+    state: present
+  become: true
+
+- name: Mount device
+  mount:
+    path: /data
+    src: /dev/sdc1
+    fstype: xfs
+    state: mounted
+  become: true
+
+- name: crea directory per l'app
+  file:
+    dest: '{{item}}'
+    state: directory
+  become: true
+  with_items:
+    - /data
+    - /data/configdb
+    - /data/conf
+    - /data/db

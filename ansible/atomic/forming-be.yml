@@ -1,0 +1,25 @@
+- name: Install packages
+  package:
+    name: '{{item}}'
+    state: present
+  become: true
+  with_items: 
+    - nodejs
+    - npm
+    - monit
+
+- name: crea directory per l'app
+  file:
+    dest: /app
+    state: directory
+  become: true
+
+- name: Install node.js packages
+  npm:
+    name: '{{item}}'
+    path: /app/
+  become: true
+  with_items:
+    - express
+    - mongodb
+
