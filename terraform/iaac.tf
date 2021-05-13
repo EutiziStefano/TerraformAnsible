@@ -94,9 +94,6 @@ resource "azurerm_network_interface" "bastion-nic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id = azurerm_public_ip.bastionPublicIp.id
   }
-  tags = { 
-    Vendor = "Databricks"
-  }
 }
 
 resource "azurerm_virtual_machine" "bastion" {
