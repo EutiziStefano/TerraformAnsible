@@ -20,6 +20,11 @@ NB: Con questa configurazione alla chiamata http://LOAD_BALANCER_IP/STOP i backe
 #### Automatizzare il backup del database
 Ho realizzato il backup dei database tramite uno script bash che sfrutta l'utility mongodump. Questo script e' schedulato, all'interno di un'apposita vm, in crontab per girare ogni notte e salva il backup su un disco aggiuntivo, dimensionato opportunamente, mantenendo gli ultimi 7 giorni.
 
+#### Produrre la documentazione e lo schema architetturale
+Sono contenuti in questo repository, la documentazione generale che contiene anche lo schema architetturale, e un README, rispettivamente nelle cartelle "terraform" e "ansible", che dettaglia le singole procedure.
+Il sorgente draw.io dell'architettura e' stato riportato nella cartella "draw"
+
+
 ## Risultato finale
 Al termine dell'esecuzione terraform/ansible sara' possibile contattare il bilanciatore e il risultato sara' il seguente:
 
