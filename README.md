@@ -13,19 +13,17 @@ L'obiettivo e' stato raggiunto implementando l'automazione tramite Terraform
 Il forming delle macchine virtuali e la configurazione dell'applicazione e del middleware sono stati automatizzati tramite Ansible
 
 #### Implementare un metodo per il riavvio automatico del servizio in caso di crash
-Ho scelto di realizzare questo punto utilizzando Monit, questo, come sistema di monitoraggio attivo, permette di intraprendere azioni di riavvio/ripristino del servizio o puo' essere facilmente integrato con sistemi di trouble ticketing. Anche se in questo semplice caso di test effettua semplicemente il riavvio.
+Ho scelto di realizzare questo punto utilizzando Monit, questo, come sistema di monitoraggio attivo, permette di intraprendere azioni di riavvio/ripristino del servizio o puo' essere facilmente integrato con sistemi di trouble ticketing. Anche se in questo semplice caso di test effettua banalmente il riavvio del servizio.
 
 NB: Con questa configurazione alla chiamata http://LOAD_BALANCER_IP/STOP i backend verranno stoppati tutti, in quanto l'nginx redirige la chiamata al prossimo upstream essendo una chiamata GET. Se si vuole evitare questo comportamento va aggiunta la direttiva proxy_next_upstream off;
 
 #### Automatizzare il backup del database
-Ho realizzato il backup dei database tramite uno script bash che sfrutta l'utility mongodump. Questo script e' schedulato con crontab per girare ogni notte e salva su un disco aggiuntivo i backup, mantenendo gli ultimi 7 giorni.
+Ho realizzato il backup dei database tramite uno script bash che sfrutta l'utility mongodump. Questo script e' schedulato, all'interno di un'apposita vm, in crontab per girare ogni notte e salva il backup su un disco aggiuntivo, dimensionato opportunamente, mantenendo gli ultimi 7 giorni.
 
 ## Risultato finale
 Al termine dell'esecuzione terraform/ansible sara' possibile contattare il bilanciatore e il risultato sara' il seguente:
 
 ![classic](/images/result.png)
-
-
 
 ## Prerequisiti Generali
 Per poter eseguire il codice contenuto in questo repository e' necessario avere una postazione Linux con i seguenti tool installati:
