@@ -1,6 +1,6 @@
 # AUTOMATION TEST
 
-Nel repo sono presenti le istruzioni e gli script per realizzare l'architettura e deployare l'applicazione Mongo_dbs (https://bitbucket.org/panik-code/eng_dhub/src/master/).
+Nel repo sono presenti le istruzioni e gli script per realizzare l'architettura e deployare l'applicazione Mongo_dbs (https://github.com/EutiziStefano/TerraformAnsible/blob/master/Esercizio.md).
 
 L'applicazione viene deployata su infrastruttura Virtuale in cloud Microsoft Azure.
 
